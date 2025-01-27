@@ -30,6 +30,40 @@ public class VehicleController {
                     .body(new ErrorResponse("Failed to pair: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createVehicle(@RequestBody Vehicle vehicle) {
+        try {
+            return ResponseEntity.ok(vehicleService.createVehicle(vehicle));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/power")
+    public ResponseEntity<?> togglePower(
+            @PathVariable String id,
+            @RequestParam boolean on) {
+        try {
+            Vehicle vehicle = vehicleService.togglePower(id, on);
+            return ResponseEntity.ok(vehicle);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/location")
+    public ResponseEntity<?> updateLocation(
+            @PathVariable String id,
+            @RequestParam double latitude,
+            @RequestParam double longitude) {
+        try {
+            Vehicle vehicle = vehicleService.updateLocation(id, latitude, longitude);
+            return ResponseEntity.ok(vehicle);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
 }
 
 @Data
