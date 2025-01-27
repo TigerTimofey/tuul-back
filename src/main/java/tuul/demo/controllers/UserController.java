@@ -15,14 +15,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.Data;
 import tuul.demo.repository.UserRepository;
 import tuul.demo.models.RegistrationRequest;
 import tuul.demo.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -40,7 +43,7 @@ public class UserController {
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
             logger.error("Registration failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 
@@ -58,5 +61,27 @@ public class UserController {
             return ResponseEntity.ok("Login successful");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            logger.info("Fetching all users");
+            return ResponseEntity.ok(userRepository.findAll());
+        } catch (Exception e) {
+            logger.error("Failed to fetch users: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Unable to fetch users"));
+        }
+    }
+
+}
+
+@Data
+class ErrorResponse {
+    private String message;
+
+    public ErrorResponse(String message) {
+        this.message = message;
     }
 }
