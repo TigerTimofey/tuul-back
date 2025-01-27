@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import tuul.demo.repository.UserRepository;
 import tuul.demo.models.RegistrationRequest;
 import tuul.demo.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -32,12 +35,11 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest request) {
         try {
-            if (request.getName() == null || request.getName().isEmpty()) {
-                return ResponseEntity.badRequest().body("Name is required");
-            }
+            logger.info("Received registration request for email: {}", request.getEmail());
             User user = userService.registerUser(request);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
+            logger.error("Registration failed: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
