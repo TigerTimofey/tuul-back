@@ -11,6 +11,7 @@ import tuul.demo.repository.ReservationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class VehicleService {
@@ -24,6 +25,15 @@ public class VehicleService {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    public List<Vehicle> getAllVehicles() {
+        try {
+            return vehicleRepository.findAll();
+        } catch (Exception e) {
+            logger.error("Error retrieving all vehicles: ", e);
+            throw new RuntimeException("Failed to retrieve vehicles");
+        }
+    }
 
     public Vehicle pairVehicle(String vehicleCode, String userId) {
         validatePairingRequest(vehicleCode, userId);
@@ -43,16 +53,30 @@ public class VehicleService {
         }
     }
 
+    public Vehicle findVehicleByCode(String code) {
+        try {
+            return vehicleRepository.findByVehicleCode(code).orElse(null);
+        } catch (Exception e) {
+            logger.error("Error finding vehicle: ", e);
+            return null;
+        }
+    }
+
     private Vehicle findAndValidateVehicle(String vehicleCode, String userId) {
+        logger.debug("Looking for vehicle with code: {}", vehicleCode);
+
         Vehicle vehicle = vehicleRepository.findByVehicleCode(vehicleCode)
-                .orElseThrow(() -> new RuntimeException("Invalid vehicle code"));
+                .orElseThrow(() -> new RuntimeException("Vehicle not found with code: " + vehicleCode));
+
+        if (vehicle.isPaired() && vehicle.getUserId() != null &&
+                vehicle.getUserId().equals(userId)) {
+            return vehicle;
+        }
 
         if (vehicle.isPaired()) {
-            if (vehicle.getUserId() != null && vehicle.getUserId().equals(userId)) {
-                return vehicle;
-            }
             throw new RuntimeException("Vehicle is already paired with another user");
         }
+
         return vehicle;
     }
 

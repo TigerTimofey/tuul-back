@@ -6,8 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import tuul.demo.models.Vehicle;
 import tuul.demo.service.VehicleService;
 import lombok.Data;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -22,12 +27,34 @@ public class VehicleController {
     public ResponseEntity<?> pairVehicle(@RequestBody PairRequest request) {
         try {
             logger.info("Received pairing request: {}", request);
-            Vehicle vehicle = vehicleService.pairVehicle(request.getVehicleCode(), request.getUserId());
-            return ResponseEntity.ok(new PairResponse(vehicle.getId(), "Scooter paired successfully!"));
+
+            // Validate request
+            if (request.getVehicleCode() == null || request.getUserId() == null) {
+                return ResponseEntity.badRequest()
+                        .body(new ErrorResponse("Vehicle code and user ID are required"));
+            }
+
+            // Get existing or create new vehicle
+            Vehicle existingVehicle = vehicleService.findVehicleByCode(request.getVehicleCode());
+            if (existingVehicle == null) {
+                Vehicle newVehicle = new Vehicle();
+                newVehicle.setVehicleCode(request.getVehicleCode());
+                existingVehicle = vehicleService.createVehicle(newVehicle);
+                logger.info("Created new vehicle with code: {}", request.getVehicleCode());
+            }
+
+            logger.info("Attempting to pair vehicle {} with user {}",
+                    existingVehicle.getVehicleCode(), request.getUserId());
+
+            Vehicle pairedVehicle = vehicleService.pairVehicle(
+                    existingVehicle.getVehicleCode(),
+                    request.getUserId());
+
+            return ResponseEntity.ok(pairedVehicle);
         } catch (Exception e) {
             logger.error("Pairing failed: ", e);
-            return ResponseEntity.internalServerError()
-                    .body(new ErrorResponse("Failed to pair: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
         }
     }
 
@@ -64,6 +91,20 @@ public class VehicleController {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllScooters() {
+        try {
+            // Retrieve all scooters
+            List<Vehicle> vehicles = vehicleService.getAllVehicles();
+            return ResponseEntity.ok(vehicles);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve vehicles: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
 }
 
 @Data
@@ -73,12 +114,11 @@ class PairRequest {
 }
 
 @Data
-class PairResponse {
-    private String vehicleId;
+class PairResponse extends Vehicle {
     private String message;
 
-    public PairResponse(String vehicleId, String message) {
-        this.vehicleId = vehicleId;
+    public PairResponse(Vehicle vehicle, String message) {
+        BeanUtils.copyProperties(vehicle, this);
         this.message = message;
     }
 }
