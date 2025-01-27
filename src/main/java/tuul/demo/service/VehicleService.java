@@ -35,6 +35,10 @@ public class VehicleService {
         }
     }
 
+    public Vehicle getVehicleById(String id) {
+        return vehicleRepository.findById(id).orElse(null);
+    }
+
     public Vehicle pairVehicle(String vehicleCode, String userId) {
         validatePairingRequest(vehicleCode, userId);
 

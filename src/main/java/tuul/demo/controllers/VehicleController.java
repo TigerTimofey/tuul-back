@@ -111,4 +111,20 @@ public class VehicleController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getScooterById(@PathVariable String id) {
+        try {
+            Vehicle vehicle = vehicleService.getVehicleById(id);
+            if (vehicle == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse("Vehicle not found"));
+            }
+            return ResponseEntity.ok(vehicle);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve vehicle: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
 }
