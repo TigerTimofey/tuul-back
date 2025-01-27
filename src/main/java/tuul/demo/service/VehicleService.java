@@ -80,13 +80,16 @@ public class VehicleService {
         return vehicle;
     }
 
-    private User findAndValidateUser(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    private User findAndValidateUser(String firebaseUid) {
+        return userRepository.findByFirebaseUid(firebaseUid)
+                .orElseThrow(() -> {
+                    logger.error("User not found with Firebase UID: {}", firebaseUid);
+                    return new RuntimeException("User not found");
+                });
     }
 
     private Vehicle completePairing(Vehicle vehicle, User user) {
-        vehicle.setUserId(user.getId());
+        vehicle.setUserId(user.getFirebaseUid()); // Use Firebase UID consistently
         vehicle.setPaired(true);
         vehicle.setStatus("paired");
 

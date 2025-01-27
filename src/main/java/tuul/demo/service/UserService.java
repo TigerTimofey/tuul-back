@@ -8,6 +8,8 @@ import tuul.demo.models.RegistrationRequest;
 import tuul.demo.models.User;
 import tuul.demo.repository.UserRepository;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -40,5 +42,22 @@ public class UserService {
         logger.info("Successfully registered user with email: {}", request.getEmail());
 
         return savedUser;
+    }
+
+    public User findOrCreateUser(String firebaseUid, String email) {
+        logger.info("Finding or creating user with Firebase UID: {}", firebaseUid);
+
+        return userRepository.findByFirebaseUid(firebaseUid)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setFirebaseUid(firebaseUid);
+                    newUser.setEmail(email);
+                    newUser.setCreatedAt(LocalDateTime.now());
+                    newUser.setLastLoginAt(LocalDateTime.now());
+
+                    User savedUser = userRepository.save(newUser);
+                    logger.info("Created new user with Firebase UID: {}", firebaseUid);
+                    return savedUser;
+                });
     }
 }

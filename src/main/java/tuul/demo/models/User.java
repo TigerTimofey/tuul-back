@@ -1,14 +1,11 @@
 package tuul.demo.models;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.LocalDateTime;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-
+@Data
 @Document(collection = "users")
 public class User {
     @Id
@@ -17,5 +14,7 @@ public class User {
     private String password;
     private String name;
     private String activeVehicleId;
-
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLoginAt;
+    private String firebaseUid;
 }
