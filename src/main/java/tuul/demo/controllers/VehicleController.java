@@ -8,13 +8,11 @@ import tuul.demo.models.User;
 import tuul.demo.models.Vehicle;
 import tuul.demo.service.VehicleService;
 import tuul.demo.service.UserService;
-import lombok.Data;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import com.google.firebase.auth.*;
 import tuul.demo.models.ErrorResponse;
@@ -38,20 +36,16 @@ public class VehicleController {
         try {
             logger.info("Received pairing request: {}", request);
 
-            // Extract Firebase token
             String token = bearerToken.replace("Bearer ", "");
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
 
-            // Verify the user ID matches the token
             if (!decodedToken.getUid().equals(request.getUserId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new ErrorResponse("User ID mismatch"));
             }
 
-            // Create or get user
             User user = userService.findOrCreateUser(decodedToken.getUid(), decodedToken.getEmail());
 
-            // Now proceed with vehicle pairing using the user's Firebase UID
             Vehicle pairedVehicle = vehicleService.pairVehicle(
                     request.getVehicleCode(),
                     user.getFirebaseUid());
@@ -95,6 +89,19 @@ public class VehicleController {
             return ResponseEntity.ok(vehicle);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/unpair")
+    public ResponseEntity<?> unpairVehicle(@PathVariable String id) {
+        try {
+            logger.info("Received unpair request for vehicle: {}", id);
+            Vehicle vehicle = vehicleService.unpairVehicle(id);
+            return ResponseEntity.ok(vehicle);
+        } catch (Exception e) {
+            logger.error("Unpairing failed: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
         }
     }
 

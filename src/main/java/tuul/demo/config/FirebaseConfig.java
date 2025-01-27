@@ -18,11 +18,12 @@ public class FirebaseConfig {
     public FirebaseApp firebaseApp() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
-                ClassPathResource resource = new ClassPathResource("tuul-5d27d-firebase-adminsdk-fbsvc-70cb1def86.json");
-                
+                ClassPathResource resource = new ClassPathResource(
+                        "tuul-5d27d-firebase-adminsdk-fbsvc-70cb1def86.json");
+
                 FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
-                    .build();
+                        .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
+                        .build();
 
                 logger.info("Initializing Firebase application");
                 return FirebaseApp.initializeApp(options);
