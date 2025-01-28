@@ -28,7 +28,7 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @PostMapping("/pair")
     public ResponseEntity<?> pairVehicle(@RequestBody PairRequest request,
@@ -108,7 +108,6 @@ public class VehicleController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllScooters() {
         try {
-            // Retrieve all scooters
             List<Vehicle> vehicles = vehicleService.getAllVehicles();
             return ResponseEntity.ok(vehicles);
         } catch (Exception e) {

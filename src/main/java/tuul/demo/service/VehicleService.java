@@ -193,12 +193,12 @@ public class VehicleService {
     }
 
     public Vehicle unpairVehicle(String vehicleId) {
+
         logger.info("Attempting to unpair vehicle: {}", vehicleId);
 
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
-        // Update user if needed
         if (vehicle.getUserId() != null) {
             User user = userRepository.findByFirebaseUid(vehicle.getUserId()).orElse(null);
             if (user != null && vehicleId.equals(user.getActiveVehicleId())) {
@@ -206,8 +206,6 @@ public class VehicleService {
                 userRepository.save(user);
             }
         }
-
-        // Reset vehicle state
         vehicle.setUserId(null);
         vehicle.setPaired(false);
         vehicle.setStatus("available");
@@ -219,4 +217,5 @@ public class VehicleService {
 
         return savedVehicle;
     }
+
 }
