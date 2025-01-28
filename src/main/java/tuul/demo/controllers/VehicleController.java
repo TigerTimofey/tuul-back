@@ -1,5 +1,9 @@
 package tuul.demo.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,7 @@ import tuul.demo.models.PairRequest;
 @RestController
 @RequestMapping("/api/vehicles")
 @CrossOrigin(origins = "http://localhost:5173")
+@Tag(name = "Vehicle Management", description = "APIs for managing vehicles")
 public class VehicleController {
     private static final Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
@@ -35,6 +40,12 @@ public class VehicleController {
     @Autowired
     private ReservationService reservationService;
 
+    @Operation(summary = "Pair a vehicle with a user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Vehicle successfully paired"),
+            @ApiResponse(responseCode = "403", description = "User ID mismatch"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/pair")
     public ResponseEntity<?> pairVehicle(@RequestBody PairRequest request,
             @RequestHeader("Authorization") String bearerToken) {
@@ -63,6 +74,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Create a new vehicle")
     @PostMapping("/create")
     public ResponseEntity<?> createVehicle(@RequestBody Vehicle vehicle) {
         try {
@@ -72,6 +84,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Toggle vehicle power state")
     @PostMapping("/{id}/power")
     public ResponseEntity<?> togglePower(
             @PathVariable String id,
@@ -84,6 +97,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Update vehicle location")
     @PostMapping("/{id}/location")
     public ResponseEntity<?> updateLocation(
             @PathVariable String id,
@@ -97,6 +111,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Unpair a vehicle")
     @PostMapping("/{id}/unpair")
     public ResponseEntity<?> unpairVehicle(@PathVariable String id) {
         try {
@@ -110,6 +125,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Toggle vehicle lock state")
     @PostMapping("/{id}/lock")
     public ResponseEntity<?> toggleLock(
             @PathVariable String id,
@@ -122,6 +138,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Get all vehicles")
     @GetMapping("/all")
     public ResponseEntity<?> getAllScooters() {
         try {
@@ -134,6 +151,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Get vehicle by ID")
     @GetMapping("/{id}")
     public ResponseEntity<?> getScooterById(@PathVariable String id) {
         try {
@@ -150,6 +168,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Get current cost of a vehicle")
     @GetMapping("/{id}/current-cost")
     public ResponseEntity<?> getCurrentCost(@PathVariable String id) {
         try {
@@ -167,6 +186,7 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Delete a vehicle")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteVehicle(@PathVariable String id) {
         try {

@@ -24,9 +24,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "http://localhost:5173")
+@Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -36,6 +40,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Register a new user")
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest request) {
         try {
@@ -48,6 +53,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Get user by ID")
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable String id) {
         return userRepository.findById(id)
@@ -55,6 +61,7 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Get user by email")
     @GetMapping("/by-email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -65,6 +72,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Login user")
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
@@ -74,6 +82,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 
+    @Operation(summary = "Get all users")
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers() {
         try {
@@ -86,6 +95,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Delete user by ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable String id) {
         Optional<User> user = userRepository.findById(id);

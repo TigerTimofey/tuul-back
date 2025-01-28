@@ -13,6 +13,7 @@
 - [Configuration](#configuration)
 - [Running the Application](#running-the-application)
 - [Security](#security)
+- [API Documentation](#api-documentation)
 - [Contributor](#contributor)
 
 ## Overview
@@ -148,6 +149,52 @@ mvn spring-boot:run
 - Authentication is handled via Firebase
 - Each API endpoint requires a valid Firebase token
 - Vehicle operations are restricted to paired users
+
+## API Documentation
+
+After starting the application, you can access the API documentation in three ways:
+
+### Swagger UI
+
+Access the interactive API documentation interface at:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+### OpenAPI Specification
+
+View the raw OpenAPI specification at:
+
+```
+http://localhost:8080/v3/api-docs
+```
+
+### OpenAPI YAML
+
+Download the OpenAPI specification in YAML format at:
+
+```
+http://localhost:8080/v3/api-docs.yaml
+```
+
+#### Features of the API Documentation:
+
+- Interactive API testing interface
+- Detailed request/response schemas
+- Authentication requirements
+- Example requests and responses
+- Models documentation
+- Error responses
+
+#### Using Swagger UI:
+
+1. Navigate to the Swagger UI URL
+2. Expand an API endpoint to see details
+3. Click "Try it out" to test the endpoint
+4. Add required parameters
+5. Click "Execute" to send the request
+6. View the response
 
 ## Contributor
 
