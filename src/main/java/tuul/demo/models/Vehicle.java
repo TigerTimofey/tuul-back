@@ -18,8 +18,7 @@ public class Vehicle {
     private boolean paired;
     private String status;
 
-    // Added required fields
-    private double stateOfCharge; // battery percentage
+    private double stateOfCharge;
     private double latitude;
     private double longitude;
     private boolean poweredOn;

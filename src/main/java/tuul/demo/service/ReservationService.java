@@ -29,7 +29,7 @@ public class ReservationService {
 
         long durationSeconds = Duration.between(pairTime, LocalDateTime.now()).getSeconds();
         double minutes = durationSeconds / 60.0;
-        double cost = 1.0; // Base cost
+        double cost = 1.0;
 
         if (minutes <= 10) {
             cost += minutes * 0.5;
@@ -37,6 +37,6 @@ public class ReservationService {
             cost += (10 * 0.5) + ((minutes - 10) * 0.3);
         }
 
-        return Math.round(cost * 100.0) / 100.0; // Round to 2 decimal places
+        return Math.round(cost * 100.0) / 100.0;
     }
 }
