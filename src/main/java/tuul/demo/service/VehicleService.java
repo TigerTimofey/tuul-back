@@ -38,6 +38,10 @@ public class VehicleService {
         }
     }
 
+    public void deleteVehicle(String id) {
+        vehicleRepository.deleteById(id);
+    }
+
     public Vehicle getVehicleById(String id) {
         return vehicleRepository.findById(id).orElse(null);
     }
