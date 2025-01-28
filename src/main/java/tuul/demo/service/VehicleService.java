@@ -100,11 +100,11 @@ public class VehicleService {
     }
 
     private Vehicle completePairing(Vehicle vehicle, User user) {
-        vehicle.setUserId(user.getFirebaseUid()); // Use Firebase UID consistently
+        vehicle.setUserId(user.getFirebaseUid());
         vehicle.setPaired(true);
         vehicle.setStatus("paired");
         vehicle.setReservationStartTime(LocalDateTime.now());
-        vehicle.setCurrentCost(0.0); // Reset cost on new pairing
+        vehicle.setCurrentCost(0.0);
 
         user.setActiveVehicleId(vehicle.getId());
         userRepository.save(user);
@@ -224,7 +224,6 @@ public class VehicleService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
-        // Calculate final cost before unpairing
         double finalCost = reservationService.calculateCurrentCostFromPair(vehicle.getReservationStartTime());
         vehicle.setCurrentCost(finalCost);
 
@@ -241,7 +240,6 @@ public class VehicleService {
         vehicle.setPoweredOn(false);
         vehicle.setLocked(true);
         vehicle.setReservationStartTime(null);
-        // Don't reset currentCost here as we want to send it to frontend
 
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         logger.info("Successfully unpaired vehicle: {} with final cost: {}", vehicleId, finalCost);
