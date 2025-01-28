@@ -110,6 +110,18 @@ public class VehicleController {
         }
     }
 
+    @PostMapping("/{id}/lock")
+    public ResponseEntity<?> toggleLock(
+            @PathVariable String id,
+            @RequestParam boolean lock) {
+        try {
+            Vehicle vehicle = vehicleService.toggleLock(id, lock);
+            return ResponseEntity.ok(vehicle);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllScooters() {
         try {

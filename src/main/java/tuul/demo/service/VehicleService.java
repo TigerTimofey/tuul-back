@@ -181,6 +181,26 @@ public class VehicleService {
         return savedVehicle;
     }
 
+    public Vehicle toggleLock(String vehicleId, boolean lock) {
+        logger.info("Toggling lock {} for vehicle: {}", lock ? "ON" : "OFF", vehicleId);
+
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+
+        if (!vehicle.isPaired()) {
+            throw new RuntimeException("Vehicle must be paired first");
+        }
+
+        vehicle.setLocked(lock);
+        vehicle.setStatus(lock ? "locked" : "unlocked");
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        logger.info("Successfully toggled lock {} for vehicle: {}",
+                lock ? "ON" : "OFF", vehicleId);
+
+        return savedVehicle;
+    }
+
     public Vehicle updateLocation(String vehicleId, double latitude, double longitude) {
         logger.info("Updating location for vehicle: {} to lat: {}, lng: {}",
                 vehicleId, latitude, longitude);
