@@ -3,6 +3,10 @@ package tuul.demo.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Data
 @Document(collection = "vehicles")
@@ -22,6 +26,12 @@ public class Vehicle {
     private double estimatedRange;
     private double odometer;
     private boolean locked;
+    @Getter
+    @Setter
+    private LocalDateTime reservationStartTime;
+    @Getter
+    @Setter
+    private double currentCost;
 
     public Vehicle() {
         this.paired = false;
@@ -29,6 +39,7 @@ public class Vehicle {
         this.stateOfCharge = 100.0;
         this.poweredOn = false;
         this.locked = true;
+        this.currentCost = 0.0;
     }
 
     public boolean isPaired() {

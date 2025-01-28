@@ -8,8 +8,10 @@ import tuul.demo.models.User;
 import tuul.demo.models.Vehicle;
 import tuul.demo.service.VehicleService;
 import tuul.demo.service.UserService;
+import tuul.demo.service.ReservationService;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,9 @@ public class VehicleController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ReservationService reservationService;
 
     @PostMapping("/pair")
     public ResponseEntity<?> pairVehicle(@RequestBody PairRequest request,
@@ -128,6 +133,23 @@ public class VehicleController {
             return ResponseEntity.ok(vehicle);
         } catch (Exception e) {
             logger.error("Failed to retrieve vehicle: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}/current-cost")
+    public ResponseEntity<?> getCurrentCost(@PathVariable String id) {
+        try {
+            Vehicle vehicle = vehicleService.getVehicleById(id);
+            if (vehicle == null || !vehicle.isPaired()) {
+                return ResponseEntity.ok(Map.of("cost", 0.0));
+            }
+
+            double currentCost = reservationService.calculateCurrentCostFromPair(vehicle.getReservationStartTime());
+            return ResponseEntity.ok(Map.of("cost", currentCost));
+        } catch (Exception e) {
+            logger.error("Failed to calculate current cost: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(e.getMessage()));
         }

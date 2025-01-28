@@ -26,6 +26,9 @@ public class VehicleService {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Autowired
+    private ReservationService reservationService;
+
     public List<Vehicle> getAllVehicles() {
         try {
             return vehicleRepository.findAll();
@@ -96,15 +99,13 @@ public class VehicleService {
         vehicle.setUserId(user.getFirebaseUid()); // Use Firebase UID consistently
         vehicle.setPaired(true);
         vehicle.setStatus("paired");
+        vehicle.setReservationStartTime(LocalDateTime.now());
+        vehicle.setCurrentCost(0.0); // Reset cost on new pairing
 
         user.setActiveVehicleId(vehicle.getId());
         userRepository.save(user);
 
-        Vehicle savedVehicle = vehicleRepository.save(vehicle);
-        logger.info("Successfully paired vehicle: {} with user: {}",
-                vehicle.getVehicleCode(), user.getId());
-
-        return savedVehicle;
+        return vehicleRepository.save(vehicle);
     }
 
     public Vehicle createVehicle(Vehicle vehicle) {
@@ -199,6 +200,10 @@ public class VehicleService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
+        // Calculate final cost before unpairing
+        double finalCost = reservationService.calculateCurrentCostFromPair(vehicle.getReservationStartTime());
+        vehicle.setCurrentCost(finalCost);
+
         if (vehicle.getUserId() != null) {
             User user = userRepository.findByFirebaseUid(vehicle.getUserId()).orElse(null);
             if (user != null && vehicleId.equals(user.getActiveVehicleId())) {
@@ -211,11 +216,18 @@ public class VehicleService {
         vehicle.setStatus("available");
         vehicle.setPoweredOn(false);
         vehicle.setLocked(true);
+        vehicle.setReservationStartTime(null);
+        // Don't reset currentCost here as we want to send it to frontend
 
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
-        logger.info("Successfully unpaired vehicle: {}", vehicleId);
+        logger.info("Successfully unpaired vehicle: {} with final cost: {}", vehicleId, finalCost);
 
         return savedVehicle;
+    }
+
+    public Vehicle updateCurrentCost(Vehicle vehicle, double cost) {
+        vehicle.setCurrentCost(cost);
+        return vehicleRepository.save(vehicle);
     }
 
 }

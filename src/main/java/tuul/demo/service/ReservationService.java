@@ -1,6 +1,7 @@
 package tuul.demo.service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import tuul.demo.models.Reservation;
@@ -19,5 +20,23 @@ public class ReservationService {
         }
 
         return cost;
+    }
+
+    public double calculateCurrentCostFromPair(LocalDateTime pairTime) {
+        if (pairTime == null) {
+            return 0.0;
+        }
+
+        long durationSeconds = Duration.between(pairTime, LocalDateTime.now()).getSeconds();
+        double minutes = durationSeconds / 60.0;
+        double cost = 1.0; // Base cost
+
+        if (minutes <= 10) {
+            cost += minutes * 0.5;
+        } else {
+            cost += (10 * 0.5) + ((minutes - 10) * 0.3);
+        }
+
+        return Math.round(cost * 100.0) / 100.0; // Round to 2 decimal places
     }
 }
